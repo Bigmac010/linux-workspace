@@ -1,0 +1,37 @@
+{
+  "name": "Linux Workspace",
+
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+
+  "remoteUser": "vscode",
+
+  "postCreateCommand": "bash install.sh",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-python.python",
+        "james-yu.latex-workshop"
+      ],
+
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "fish",
+        "latex-workshop.latex.autoBuild.run": "onSave",
+        "latex-workshop.view.pdf.viewer": "tab"
+      }
+    },
+
+    "codespaces": {
+      "repositories": {
+        "Bigmac010/bmo": {
+          "permissions": {
+            "contents": "write"
+          }
+        }
+      }
+    }
+  }
+}
