@@ -3,12 +3,12 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
-    neovim \
     fish \
     build-essential \
     cmake \
     gdb \
     git \
+    curl \
     python3 \
     python-is-python3 \
     python3-pip \
@@ -28,6 +28,13 @@ RUN apt-get update && apt-get install -y \
     xfce4-terminal \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+    RUN curl -L \
+    https://github.com/neovim/neovim/releases/download/stable/nvim-linux-x86_64.tar.gz \
+    -o /tmp/nvim.tar.gz \
+    && tar -xzf /tmp/nvim.tar.gz -C /opt \
+    && ln -s /opt/nvim-linux-x86_64/bin/nvim /usr/local/bin/nvim \
+    && rm /tmp/nvim.tar.gz
 
 RUN usermod --shell /usr/bin/fish vscode
 
