@@ -48,7 +48,6 @@ require("lazy").setup({
     },
 })
 
-<<<<<<< HEAD
 local vimtex_group = vim.api.nvim_create_augroup(
     "vimtex_live_compile",
     { clear = true }
@@ -88,4 +87,4 @@ vim.api.nvim_create_autocmd(
         end,
     }
 )
->>>>>>> f68f78e (Add live LaTeX compilation)
+
