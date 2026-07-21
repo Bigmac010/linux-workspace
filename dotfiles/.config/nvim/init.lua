@@ -11,6 +11,7 @@ vim.opt.wrap = false
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
+-- Install lazy.nvim automatically
 local lazy_path = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 local uv = vim.uv or vim.loop
 
@@ -31,6 +32,7 @@ end
 
 vim.opt.rtp:prepend(lazy_path)
 
+-- Plugins
 require("lazy").setup({
     {
         "lervag/vimtex",
@@ -39,6 +41,7 @@ require("lazy").setup({
             vim.g.vimtex_compiler_method = "latexmk"
             vim.g.vimtex_quickfix_mode = 0
 
+            -- Codespaces cannot directly open Zathura
             if vim.env.CODESPACES == "true" then
                 vim.g.vimtex_view_enabled = 0
             else
@@ -53,12 +56,14 @@ local vimtex_group = vim.api.nvim_create_augroup(
     { clear = true }
 )
 
+-- Start continuous compilation automatically
 vim.api.nvim_create_autocmd("User", {
     pattern = "VimtexEventInitPost",
     group = vimtex_group,
     command = "VimtexCompile!",
 })
 
+-- Automatically save TeX files shortly after typing stops
 local tex_save_timer = nil
 
 vim.api.nvim_create_autocmd(
@@ -88,3 +93,28 @@ vim.api.nvim_create_autocmd(
     }
 )
 
+-- Remove temporary LaTeX build files when NeoVim closes
+vim.api.nvim_create_autocmd("VimLeavePre", {
+    group = vimtex_group,
+    callback = function()
+        pcall(vim.cmd, "silent! VimtexStopAll")
+
+        for _, buffer in ipairs(vim.api.nvim_list_bufs()) do
+            local file = vim.api.nvim_buf_get_name(buffer)
+
+            if file:match("%.tex$") then
+                vim.fn.system({
+                    "latexmk",
+                    "-c",
+                    "-cd",
+                    file,
+                })
+
+                local base = file:gsub("%.tex$", "")
+
+                vim.fn.delete(base .. ".synctex.gz")
+                vim.fn.delete(base .. ".pre")
+            end
+        end
+    end,
+})
