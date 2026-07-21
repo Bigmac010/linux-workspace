@@ -19,40 +19,9 @@
 
       "settings": {
         "terminal.integrated.defaultProfile.linux": "fish",
-        "latex-workshop.latex.autoBuild.run": "onSave",
+        "latex-workshop.latex.autoBuild.run": "never",
         "latex-workshop.view.pdf.viewer": "tab"
       }
-    },
-
-    "codespaces": {
-      "repositories": {
-        "Bigmac010/a": {
-          "permissions": {
-            "contents": "write"
-          }
-        }
-      }
-    },
-
-    "codespaces": {
-      "repositories": {
-        "Bigmac010/BMO": {
-          "permissions": {
-            "contents": "write"
-          }
-        }
-      }
-    },
-
-    "codespaces": {
-      "repositories": {
-        "Bigmac010/Misc": {
-          "permissions": {
-            "contents": "write"
-          }
-        }
-      }
     }
-
   }
 }
