@@ -4,17 +4,16 @@ set -euo pipefail
 
 WORKSPACE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-echo "Applying Fish and NeoVim configuration..."
+mkdir -p "$HOME/.config/fish"
+mkdir -p "$HOME/.config/nvim"
 
-mkdir -p "$HOME/.config"
+ln -sfn \
+    "$WORKSPACE_DIR/dotfiles/.config/fish/config.fish" \
+    "$HOME/.config/fish/config.fish"
 
-ln -sfnT \
-    "$WORKSPACE_DIR/dotfiles/.config/fish" \
-    "$HOME/.config/fish"
-
-ln -sfnT \
-    "$WORKSPACE_DIR/dotfiles/.config/nvim" \
-    "$HOME/.config/nvim"
+ln -sfn \
+    "$WORKSPACE_DIR/dotfiles/.config/nvim/init.lua" \
+    "$HOME/.config/nvim/init.lua"
 
 git config --global core.editor nvim
 git config --global init.defaultBranch main
