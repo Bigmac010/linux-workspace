@@ -26,12 +26,33 @@
 
     "codespaces": {
       "repositories": {
-        "Bigmac010/bmo": {
+        "Bigmac010/a": {
+          "permissions": {
+            "contents": "write"
+          }
+        }
+      }
+    },
+
+    "codespaces": {
+      "repositories": {
+        "Bigmac010/BMO": {
+          "permissions": {
+            "contents": "write"
+          }
+        }
+      }
+    },
+
+    "codespaces": {
+      "repositories": {
+        "Bigmac010/Misc": {
           "permissions": {
             "contents": "write"
           }
         }
       }
     }
+
   }
 }
