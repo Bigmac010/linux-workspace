@@ -21,7 +21,7 @@ if not uv.fs_stat(lazy_path) then
         "--filter=blob:none",
         "https://github.com/folke/lazy.nvim.git",
         "--branch=stable",
-        lazy_path
+        lazy_path,
     })
 
     if vim.v.shell_error ~= 0 then
@@ -44,20 +44,48 @@ require("lazy").setup({
             else
                 vim.g.vimtex_view_method = "zathura"
             end
-        end
+        end,
+    },
+})
+
+<<<<<<< HEAD
+local vimtex_group = vim.api.nvim_create_augroup(
+    "vimtex_live_compile",
+    { clear = true }
+)
+
+vim.api.nvim_create_autocmd("User", {
+    pattern = "VimtexEventInitPost",
+    group = vimtex_group,
+    command = "VimtexCompile!",
+})
+
+local tex_save_timer = nil
+
+vim.api.nvim_create_autocmd(
+    { "TextChanged", "TextChangedI", "TextChangedP" },
+    {
+        pattern = "*.tex",
+        group = vimtex_group,
+        callback = function(args)
+            if tex_save_timer then
+                vim.fn.timer_stop(tex_save_timer)
+            end
+
+            local buffer = args.buf
+
+            tex_save_timer = vim.fn.timer_start(200, function()
+                tex_save_timer = nil
+
+                if vim.api.nvim_buf_is_valid(buffer)
+                    and vim.api.nvim_buf_is_loaded(buffer)
+                    and vim.bo[buffer].modified then
+                    vim.api.nvim_buf_call(buffer, function()
+                        vim.cmd("silent! update")
+                    end)
+                end
+            end)
+        end,
     }
-})
-
-vim.opt.updatetime = 1000
-
-vim.api.nvim_create_autocmd("FileType", {
-    pattern = "tex",
-    callback = function()
-        vim.cmd("VimtexCompile")
-    end,
-})
-
-vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-    pattern = "*.tex",
-    command = "silent! update",
-})
+)
+>>>>>>> f68f78e (Add live LaTeX compilation)
