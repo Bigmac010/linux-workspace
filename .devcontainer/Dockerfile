@@ -25,6 +25,11 @@ RUN git clone https://github.com/lervag/vimtex.git /usr/local/share/nvim/site/pa
 RUN useradd --create-home --uid 1000 --shell /usr/bin/fish vscode \
     && echo 'vscode ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/vscode \
     && chmod 0440 /etc/sudoers.d/vscode
+# Login shells reset PATH; keep the same TeX tools available there as in VS Code.
+RUN printf '%s\n' 'export PATH="/usr/local/bin:/opt/texlive/bin:$PATH"' > /etc/profile.d/texlive.sh
 ENV PATH="/usr/local/bin:/home/vscode/.local/bin:/opt/texlive/bin:${PATH}"
+ENV TEXMFHOME="/home/vscode/texmf" \
+    TEXMFVAR="/home/vscode/.cache/texlive/texmf-var" \
+    TEXMFCONFIG="/home/vscode/.config/texlive/texmf-config"
 USER vscode
 WORKDIR /workspaces
