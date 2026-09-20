@@ -74,14 +74,18 @@ with tempfile.TemporaryDirectory(prefix='latex workspace ') as directory:
     source.write_text(SOURCE.replace('Original text.', r'\undefinedWorkspaceCommand'), encoding='utf-8')
     run(source, success=False)
     assert sha(pdf) == good_pdf, 'Failed build replaced the last good PDF'
+    source.write_text(SOURCE.replace('draw(unitcircle);', 'notARealAsymptoteFunction();'), encoding='utf-8')
+    run(source, success=False)
+    assert sha(pdf) == good_pdf, 'Failed diagram replaced the last good PDF'
     source.write_text(SOURCE, encoding='utf-8')
     run(source, '--no-cache')
     # A missing published PDF is restored even when latexmk has nothing to rebuild.
     pdf.unlink()
     run(source, '--no-cache')
     assert sha(pdf) == sha(root / 'build/sample notes.pdf')
-    source.write_text(SOURCE.replace('Original text.', 'Unicode text: café.'), encoding='utf-8')
+    source.write_text(SOURCE.replace('Original text.', 'Unicode text: café, 中文.'), encoding='utf-8')
     run(source, '--engine', 'lualatex')
     assert pdf.is_file()
+    assert 'Missing character:' not in (root / 'build/sample notes.log').read_text(encoding='utf-8', errors='replace')
     print('PASS: cold build, cache reuse, text edit, selective diagrams, title refresh,')
     print('      error preservation, republishing, spaces in paths, and LuaLaTeX.')

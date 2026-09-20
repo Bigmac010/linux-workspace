@@ -163,8 +163,9 @@ this public template.
 - LaTeX Workshop, VS Code Python and C/C++ extensions.
 
 The supported diagram workflow is 2D mathematical/geometry PDF output. The
-container builds Asymptote without OpenGL/Vulkan; interactive GPU 3D rendering
-is outside this setup.
+container includes OpenGL libraries required to build this Asymptote release,
+but supplies no graphical desktop or Vulkan renderer. Interactive GPU 3D
+rendering is outside the tested workflow.
 
 See [THIRD_PARTY.md](THIRD_PARTY.md) for versions and upstream attribution.
 OS packages are not a fully frozen snapshot. Run the checks after updating them.

@@ -52,7 +52,14 @@ def preamble_key(source):
     marker = re.search(r'(?m)^[ \t]*\\begin\{document\}', content)
     if not marker:
         return None
-    return hashlib.sha256((content[:marker.start()] + str(datetime.date.today())).encode()).hexdigest()
+    context = {
+        'source': str(source.resolve()),
+        'date': str(datetime.date.today()),
+        'compiler': shutil.which('pdftex'),
+        'search': {key: os.environ.get(key, '') for key in
+                   ('TEXINPUTS', 'TEXMFHOME', 'TEXMFLOCAL', 'TEXFORMATS')},
+    }
+    return hashlib.sha256((content[:marker.start()] + json.dumps(context, sort_keys=True)).encode()).hexdigest()
 
 
 def prepare_cache(source, folder):
@@ -73,11 +80,12 @@ def prepare_cache(source, folder):
     command = ['pdftex', '-ini', '-recorder', '-interaction=nonstopmode',
                '-halt-on-error', '-output-directory=build', '-jobname=' + source.stem,
                '&pdflatex', 'mylatexformat.ltx', source.name]
-    with (folder / 'cache-build.log').open('w', encoding='utf-8') as log:
+    cache_log = folder / (source.stem + '.cache-build.log')
+    with cache_log.open('w', encoding='utf-8') as log:
         result = subprocess.run(command, cwd=source.parent, stdout=log, stderr=subprocess.STDOUT)
     if result.returncode or not fmt.is_file():
         metadata.unlink(missing_ok=True)
-        print('Preamble cache unavailable; using normal pdfLaTeX. See build/cache-build.log.')
+        print(f'Preamble cache unavailable; using normal pdfLaTeX. See {cache_log}.')
         return None
     dependencies = {folder / (source.stem + '.pre'), Path(__file__).resolve()}
     recorder = folder / (source.stem + '.fls')

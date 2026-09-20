@@ -2,11 +2,15 @@ import importlib.util
 from pathlib import Path
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('lw', ROOT / 'tools/lw.py')
 lw = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(lw)
+build_spec = importlib.util.spec_from_file_location('builder', ROOT / '.latex/build.py')
+builder = importlib.util.module_from_spec(build_spec)
+build_spec.loader.exec_module(builder)
 
 
 class WorkspaceTests(unittest.TestCase):
@@ -35,6 +39,16 @@ class WorkspaceTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             with self.assertRaises(ValueError):
                 lw.initialise(directory, '../escape')
+
+    def test_cache_key_tracks_search_path_but_not_body(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / 'main.tex'
+            source.write_text('\\documentclass{article}\n\\begin{document}\nBefore')
+            first = builder.preamble_key(source)
+            source.write_text('\\documentclass{article}\n\\begin{document}\nAfter')
+            self.assertEqual(first, builder.preamble_key(source))
+            with mock.patch.dict('os.environ', {'TEXINPUTS': '/another/style/location:'}):
+                self.assertNotEqual(first, builder.preamble_key(source))
 
 
 if __name__ == '__main__':

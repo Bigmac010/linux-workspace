@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     fonts-cmu fonts-inconsolata fonts-noto-color-emoji fonts-noto-cjk \
     autoconf automake libtool pkg-config bison flex libgc-dev libreadline-dev libgsl-dev \
     libfftw3-dev libeigen3-dev libtirpc-dev libcurl4-openssl-dev \
+    libglm-dev libglew-dev libglut-dev libgl1-mesa-dev libglu1-mesa-dev \
     && rm -rf /var/lib/apt/lists/*
 ARG ASY_REV=e4f9fe80bff8b20110aefa559b81eefc7e864781
 ARG ASY_SHA256=6eb3ddf0e25f582a93534e132a6d26917219730b4d763e803d35a1d662c9f54f
@@ -14,7 +15,7 @@ RUN curl -fL --retry 3 "https://codeload.github.com/vectorgraphics/asymptote/tar
     && echo "${ASY_SHA256}  /tmp/asy.tar.gz" | sha256sum -c - \
     && mkdir /tmp/asy && tar -xzf /tmp/asy.tar.gz -C /tmp/asy --strip-components=1 \
     && cd /tmp/asy && ./autogen.sh \
-    && ./configure --prefix=/usr/local --disable-gl --disable-vulkan --disable-lsp \
+    && ./configure --prefix=/usr/local --disable-vulkan --disable-lsp \
     && make -j2 asy asy-keywords.el && make install-asy \
     && mktexlsr && rm -rf /tmp/asy /tmp/asy.tar.gz
 # Optional Neovim: pinned plugin, no first-start downloads.
