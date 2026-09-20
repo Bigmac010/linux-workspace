@@ -1,3 +1,62 @@
 {
-    "explorer.excludeGitIgnore": true
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 500,
+  "latex-workshop.latex.autoBuild.run": "onSave",
+  "latex-workshop.latex.autoBuild.interval": 1000,
+  "latex-workshop.latex.build.enableMagicComments": false,
+  "latex-workshop.latex.recipe.default": "first",
+  "latex-workshop.latex.outDir": "%DIR%/build",
+  "latex-workshop.latex.auxDir": "%DIR%/build",
+  "latex-workshop.latex.autoClean.run": "never",
+  "latex-workshop.view.pdf.viewer": "tab",
+  "latex-workshop.view.pdf.tab.editorGroup": "right",
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "Cached pdfLaTeX + Asymptote",
+      "tools": [
+        "cached"
+      ]
+    },
+    {
+      "name": "Normal pdfLaTeX + Asymptote",
+      "tools": [
+        "normal"
+      ]
+    },
+    {
+      "name": "LuaLaTeX + Asymptote",
+      "tools": [
+        "lua"
+      ]
+    }
+  ],
+  "latex-workshop.latex.tools": [
+    {
+      "name": "cached",
+      "command": "python3",
+      "args": [
+        "%DIR%/.latex/build.py",
+        "%DOC%.tex"
+      ]
+    },
+    {
+      "name": "normal",
+      "command": "python3",
+      "args": [
+        "%DIR%/.latex/build.py",
+        "--no-cache",
+        "%DOC%.tex"
+      ]
+    },
+    {
+      "name": "lua",
+      "command": "python3",
+      "args": [
+        "%DIR%/.latex/build.py",
+        "--engine",
+        "lualatex",
+        "%DOC%.tex"
+      ]
+    }
+  ]
 }

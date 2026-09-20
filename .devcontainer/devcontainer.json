@@ -1,18 +1,11 @@
 {
-  "name": "Linux Workspace",
-
+  "name": "Portable LaTeX and programming workspace",
   "build": {
-    "dockerfile": "Dockerfile"
+    "dockerfile": "Dockerfile",
+    "context": ".."
   },
-
-  "features": {
-    "ghcr.io/devcontainers/features/github-cli:1": {}
-  },
-
   "remoteUser": "vscode",
-
   "postCreateCommand": "bash install.sh",
-
   "customizations": {
     "vscode": {
       "extensions": [
@@ -20,11 +13,8 @@
         "ms-python.python",
         "james-yu.latex-workshop"
       ],
-
       "settings": {
-        "terminal.integrated.defaultProfile.linux": "fish",
-        "latex-workshop.latex.autoBuild.run": "never",
-        "latex-workshop.view.pdf.viewer": "tab"
+        "terminal.integrated.defaultProfile.linux": "fish"
       }
     }
   }
