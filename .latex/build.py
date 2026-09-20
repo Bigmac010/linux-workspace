@@ -79,13 +79,14 @@ def prepare_cache(source, folder):
     print('Refreshing preamble cache (ordinary text edits reuse it).', flush=True)
     command = ['pdftex', '-ini', '-recorder', '-interaction=nonstopmode',
                '-halt-on-error', '-output-directory=build', '-jobname=' + source.stem,
-               '&pdflatex', 'mylatexformat.ltx', source.name]
+               '&pdflatex', 'mylatexformat.ltx', '"' + source.name + '"']
     cache_log = folder / (source.stem + '.cache-build.log')
     with cache_log.open('w', encoding='utf-8') as log:
         result = subprocess.run(command, cwd=source.parent, stdout=log, stderr=subprocess.STDOUT)
     if result.returncode or not fmt.is_file():
         metadata.unlink(missing_ok=True)
         print(f'Preamble cache unavailable; using normal pdfLaTeX. See {cache_log}.')
+        print(cache_log.read_text(encoding='utf-8', errors='replace')[-4000:])
         return None
     dependencies = {folder / (source.stem + '.pre'), Path(__file__).resolve()}
     recorder = folder / (source.stem + '.fls')

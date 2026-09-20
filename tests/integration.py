@@ -56,7 +56,7 @@ with tempfile.TemporaryDirectory(prefix='latex workspace ') as directory:
     # Settle the generated Asymptote preamble, then ensure ordinary edits reuse the cache.
     run(source)
     fmt = root / 'build/sample notes.fmt'
-    assert fmt.exists(), 'The fast recipe silently fell back to a normal compiler'
+    assert fmt.exists(), (root / 'build/sample notes.cache-build.log').read_text(errors='replace')
     stamp = fmt.stat().st_mtime_ns
     figure_times = [p.stat().st_mtime_ns for p in figures]
     source.write_text(SOURCE.replace('Original text.', 'Edited text.'), encoding='utf-8')
