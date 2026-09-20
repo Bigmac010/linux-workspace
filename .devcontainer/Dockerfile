@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     fonts-cmu fonts-inconsolata fonts-noto-color-emoji fonts-noto-cjk \
     autoconf automake libtool pkg-config bison flex libgc-dev libreadline-dev libgsl-dev \
     libfftw3-dev libeigen3-dev libtirpc-dev libcurl4-openssl-dev \
-    libglm-dev libglew-dev libglut-dev libgl1-mesa-dev libglu1-mesa-dev \
+    libglm-dev libglew-dev libglfw3-dev libglut-dev libgl1-mesa-dev libglu1-mesa-dev \
     && rm -rf /var/lib/apt/lists/*
 ARG ASY_REV=e4f9fe80bff8b20110aefa559b81eefc7e864781
 ARG ASY_SHA256=6eb3ddf0e25f582a93534e132a6d26917219730b4d763e803d35a1d662c9f54f

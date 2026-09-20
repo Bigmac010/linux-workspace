@@ -17,6 +17,7 @@ def initialise(destination, name='main'):
     source_name = name if name.endswith('.tex') else name + '.tex'
     copies = {p: ROOT / p for p in ('.latex/build.py', '.latex/latexmkrc',
                '.latexmkrc', '.vscode/settings.json', '.vscode/extensions.json')}
+    copies['.latex/LICENSE'] = ROOT / 'LICENSE'
     conflicts = [p for p in copies if (destination / p).exists()]
     if conflicts:
         raise ValueError('Existing configuration left unchanged: ' + ', '.join(conflicts))
