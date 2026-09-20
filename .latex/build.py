@@ -119,7 +119,13 @@ def build(source, engine='pdflatex', cache=True):
         if cache and engine == 'pdflatex':
             fmt = prepare_cache(source, folder)
             if fmt:
-                env['LW_FORMAT'] = str(fmt)
+                # Unix pdfTeX's early recorder setup cannot safely use an absolute
+                # -fmt argument containing spaces. Search by a simple internal name.
+                alias = folder / ('preview-' + hashlib.sha256(source.stem.encode()).hexdigest()[:16] + '.fmt')
+                if digest(alias) != digest(fmt):
+                    shutil.copyfile(fmt, alias)
+                env['LW_FORMAT'] = alias.name
+                env['TEXFORMATS'] = str(folder) + os.pathsep + env.get('TEXFORMATS', '')
         mode = '-pdf' if engine == 'pdflatex' else '-lualatex'
         command = ['latexmk', '-norc', '-r', str(config), mode, '-outdir=build',
                    '-jobname=' + source.stem,
