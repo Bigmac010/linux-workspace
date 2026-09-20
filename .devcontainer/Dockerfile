@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo fish neovim build-essential cmake gdb git curl ca-certificates \
     python3 python3-pip python3-venv gh fontconfig ghostscript poppler-utils \
     fonts-cmu fonts-inconsolata fonts-noto-color-emoji fonts-noto-cjk \
-    autoconf automake bison flex libgc-dev libreadline-dev libgsl-dev \
+    autoconf automake libtool pkg-config bison flex libgc-dev libreadline-dev libgsl-dev \
     libfftw3-dev libeigen3-dev libtirpc-dev libcurl4-openssl-dev \
     && rm -rf /var/lib/apt/lists/*
 ARG ASY_REV=e4f9fe80bff8b20110aefa559b81eefc7e864781

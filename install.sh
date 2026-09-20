@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
+if [[ $# -gt 1 || ( $# -eq 1 && "$1" != "--dotfiles" ) ]]; then
+    echo 'Usage: bash install.sh [--dotfiles]' >&2
+    exit 2
+fi
 workspace_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 backup_root="$HOME/.local/state/latex-workspace/backups/$(date +%Y%m%d-%H%M%S)"
 link_with_backup() {
@@ -16,13 +20,9 @@ link_with_backup() {
 # All paths derive from this checkout; no Git identity, credentials or remotes are set.
 link_with_backup "$workspace_dir/tools/lw.py" "$HOME/.local/bin/lw"
 link_with_backup "$workspace_dir/dotfiles/texmf/tex/latex/evan" "$HOME/texmf/tex/latex/evan"
-chmod +x "$workspace_dir/tools/lw.py"
 if [[ "${1:-}" == "--dotfiles" ]]; then
     link_with_backup "$workspace_dir/dotfiles/.config/fish/config.fish" "$HOME/.config/fish/config.fish"
     link_with_backup "$workspace_dir/dotfiles/.config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
-elif [[ -n "${1:-}" ]]; then
-    echo 'Usage: bash install.sh [--dotfiles]' >&2
-    exit 2
 fi
 printf 'Ready. Run: ~/.local/bin/lw doctor\n'
 printf 'Create another project: ~/.local/bin/lw init /path/to/notes\n'
