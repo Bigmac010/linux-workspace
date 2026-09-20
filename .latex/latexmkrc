@@ -1,0 +1,37 @@
+use Cwd qw(abs_path);
+$pdf_mode = 1;
+$out_dir = 'build';
+$recorder = 1;
+if ($ENV{'LW_FORMAT'}) {
+    $pdflatex = 'pdflatex -fmt="' . $ENV{'LW_FORMAT'} . '" %O %S';
+}
+add_cus_dep('asy', 'pdf', 0, 'workspace_asy');
+sub workspace_asy {
+    my $base = $_[0];
+    my $source = "$base.asy";
+    my $log = "$base.asy.log";
+    # List-form system preserves spaces without interpreting filenames as shell code.
+    open my $saved_stdout, '>&', \*STDOUT or die $!;
+    open my $saved_stderr, '>&', \*STDERR or die $!;
+    open STDOUT, '>', $log or die "Cannot write $log: $!";
+    open STDERR, '>&', \*STDOUT or die $!;
+    my $status = system($ENV{'LW_ASY'} || 'asy', '-vv', '-noV', '-f', 'pdf',
+                        '-o', "$base.pdf", $source);
+    open STDOUT, '>&', $saved_stdout or die $!;
+    open STDERR, '>&', $saved_stderr or die $!;
+    open my $fh, '<', $log or die "Cannot read $log: $!";
+    my @lines = <$fh>;
+    close $fh;
+    if ($status) { print @lines; return 1; }
+    my %inputs = ($source => 1);
+    for (@lines) {
+        if (/^(?:Including|Loading) .* from (.*?)\s*$/) {
+            my $path = $1;
+            $path =~ s(\\)(/)g;
+            $inputs{$path} = 1 if -f $path;
+        }
+    }
+    rdb_set_source($rule, keys %inputs);
+    return 0;
+}
+1;

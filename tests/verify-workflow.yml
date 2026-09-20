@@ -1,0 +1,36 @@
+name: Verify workspace
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: verify-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check helper behaviour and shell syntax
+        run: |
+          python3 -m unittest discover -s tests -p 'test_*.py' -v
+          bash -n install.sh
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .devcontainer/Dockerfile
+          load: true
+          tags: latex-workspace:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Test actual container as the workspace user
+        run: |
+          docker run --rm --user root -v "$PWD:/input:ro" latex-workspace:test bash -lc '
+            cp -a /input /tmp/workspace
+            chown -R vscode:vscode /tmp/workspace
+            su vscode -s /bin/bash -c "cd /tmp/workspace && bash install.sh && /home/vscode/.local/bin/lw doctor && python3 tests/integration.py"
+          '

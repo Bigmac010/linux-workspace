@@ -1,9 +1,18 @@
+# Keep source, configuration and final PDFs. Never ignore every *.asy.
+build/
+__pycache__/
+*.pyc
+.venv/
+.env
+.env.*
+!.env.example
 *.aux
 *.fdb_latexmk
 *.fls
 *.log
 *.synctex.gz
 *.out
-*.toc*.pre
-
+*.toc
 *.pre
+*.fmt
+*.fast-preview.json

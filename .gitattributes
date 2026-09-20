@@ -1,0 +1,9 @@
+* text=auto
+*.sh text eol=lf
+*.py text eol=lf
+*.pl text eol=lf
+*.lua text eol=lf
+*.fish text eol=lf
+*.sty text eol=lf
+*.tex text eol=lf
+Dockerfile text eol=lf

@@ -1,806 +1,227 @@
 # Linux Workspace
 
-A reproducible, cloud-based Linux development environment built with GitHub Codespaces.
+A public, reusable workspace for mathematical writing, C/C++ and Python.
+Use VS Code in GitHub Codespaces or a local Dev Container. Edit LaTeX, preview
+automatically, and keep your source and final PDF in a repository you own.
 
-This workspace is designed for:
+No account name, email, token, SSH key or destination repository is configured.
+The setup does not create commits, set Git identity, change remotes, or push.
+Third-party author credits and licences are preserved.
 
-- C and C++ programming
-- Python programming
-- Mathematics notes and solutions
-- LaTeX document creation
-- NeoVim and VimTeX
-- Git and GitHub workflows
-- Command-line development through Fish
+## Start with your own copy
 
-The environment can be opened through:
+**Recommended: Use this template → Create a new repository.** Choose your own
+account, repository name and visibility. A template copy starts a new Git
+history; it is different from a fork.
 
-- GitHub Codespaces in a browser
-- VS Code desktop
-- GitHub CLI over SSH
-- Windows Terminal connected to the Codespace
+Then open **Code → Codespaces → Create codespace on main** in your copy.
+The first container build is large and may take several minutes. Codespaces
+usage is subject to your account's allowance and billing settings.
 
-## Overview
+If the template button is unavailable, fork the repository, or clone a copy you
+own. A fork is useful when you want to contribute improvements upstream.
+See [GitHub's template guide](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
 
-This repository contains both:
+For a local Linux-backed environment, install Docker and VS Code's Dev Containers
+extension, clone your copy, then choose **Dev Containers: Reopen in Container**.
+The pinned TeX image targets Linux amd64; other architectures need emulation or
+a separately tested image. The helper scripts do not require Codespaces.
 
-1. The definition of the Linux development environment.
-2. Personal configuration for Fish, NeoVim, VimTeX and LaTeX.
+## Write and preview
 
-Actual projects should normally remain in separate GitHub repositories.
-
-A typical workspace looks like:
-
-```text
-/workspaces/
-├── linux-workspace/
-├── bmo/
-├── competitive-programming/
-├── geometry-notes/
-└── other-projects/
-```
-
-`linux-workspace` defines the environment.
-
-The other folders are independent Git repositories containing actual work.
-
-## Included tools
-
-### Development
-
-- Git
-- GCC and G++
-- CMake
-- GDB
-- Python 3
-- pip
-- Python virtual environments
-
-### Editors and shells
-
-- Current stable NeoVim
-- Fish shell
-- VimTeX
-- lazy.nvim
-- VS Code C/C++ extension
-- VS Code Python extension
-- LaTeX Workshop
-
-### LaTeX and mathematics
-
-- TeX Live
-- pdfLaTeX
-- XeLaTeX
-- LuaLaTeX
-- latexmk
-- Asymptote
-- `evan.sty`
-
-### Graphical applications
-
-- Zathura
-- xfce4-terminal
-
-Zathura and xfce4-terminal are installed, but ordinary GitHub Codespaces sessions do not provide a graphical Linux desktop.
-
-Inside Codespaces, the practical replacements are:
+1. Open `main.tex`.
+2. Press **Ctrl+Alt+B** for the first build.
+3. Press **Ctrl+Alt+V** to open the PDF on the right.
+4. Edit. After 0.5 seconds without typing, VS Code saves and starts a build.
 
 ```text
-Zathura          → VS Code internal PDF viewer
-xfce4-terminal   → VS Code terminal or Windows Terminal over SSH
+my-notes/
+├── main.tex               edit this
+├── main.pdf               final PDF to read, commit or share
+├── build/                 diagrams, caches, logs and SyncTeX; ignored by Git
+├── .latex/                portable build helpers
+├── .vscode/               editor recipes
+└── .latexmkrc              direct latexmk compatibility
 ```
 
-The generated PDF is the same regardless of the viewer used.
+The preview uses the PDF in `build/` so SyncTeX stays beside it. A successful
+build updates the final PDF next to the source. If a build fails, that final PDF
+remains the last successful version: check the build error before sharing.
 
-## Repository structure
+The cached pdfLaTeX recipe precompiles the preamble and reuses unchanged diagrams.
+There is no promised five-second time: machine size, document length, diagrams
+and extra reference passes all matter. First builds and preamble changes are
+slower. The cache refreshes when the preamble, loaded files or compiler change,
+and each new day. It is never deleted merely because the editor closes.
 
-```text
-linux-workspace/
-├── .devcontainer/
-│   ├── devcontainer.json
-│   └── Dockerfile
-│
-├── dotfiles/
-│   ├── .config/
-│   │   ├── fish/
-│   │   │   └── config.fish
-│   │   └── nvim/
-│   │       └── init.lua
-│   │
-│   └── texmf/
-│       └── tex/
-│           └── latex/
-│               └── evan/
-│                   └── evan.sty
-│
-├── .gitignore
-├── install.sh
-└── README.md
+**Build with recipe** also offers normal pdfLaTeX and LuaLaTeX. LuaLaTeX supports
+the installed Unicode fonts and bypasses the preamble cache. pdfLaTeX has
+different font handling and cannot typeset arbitrary Unicode/colour emoji.
+Use a portable symbol such as `\ensuremath{\rightarrow}` in pdfLaTeX sources.
+Automatic builds always use the first recipe, unless you change
+`latex-workshop.latex.recipe.default`.
+
+CLI equivalents:
+
+```sh
+lw build main.tex
+lw build --no-cache main.tex
+lw build --engine lualatex main.tex
+lw doctor
 ```
 
-## What each file does
+A copied project includes its builder and can also run
+`python3 .latex/build.py main.tex` when the documented tools and Evan style are
+installed. Newer source code is not fetched during compilation.
 
-### `.devcontainer/devcontainer.json`
+## Put notes in a different repository
 
-Defines how GitHub Codespaces should configure the workspace.
+The workspace supplies the tools. Your notes repository stores your work.
+Keep repositories as siblings, not nested Git repositories.
 
-It controls:
+### Existing notes repository
 
-- which Dockerfile is used;
-- the Linux user;
-- the post-creation setup command;
-- VS Code extensions;
-- VS Code terminal settings;
-- LaTeX Workshop settings;
-- permission to access additional repositories.
+In a terminal, after granting access as explained below:
 
-### `.devcontainer/Dockerfile`
-
-Builds the Linux container and installs the required programs.
-
-It installs:
-
-- Fish
-- Git
-- C and C++ tools
-- Python
-- TeX Live
-- latexmk
-- Asymptote
-- Zathura
-- xfce4-terminal
-
-It also downloads the current stable NeoVim release directly rather than relying on Ubuntu's potentially older NeoVim package.
-
-### `install.sh`
-
-Runs after the Codespace has been created.
-
-It:
-
-- links the Fish configuration;
-- links the NeoVim configuration;
-- links `evan.sty` into the user's TeX directory;
-- sets NeoVim as Git's default editor;
-- sets `main` as Git's default initial branch;
-- sets Fish as the login shell.
-
-### `dotfiles/.config/fish/config.fish`
-
-Configures Fish and provides aliases and helper functions.
-
-### `dotfiles/.config/nvim/init.lua`
-
-Configures NeoVim, lazy.nvim and VimTeX.
-
-### `dotfiles/texmf`
-
-Contains personal TeX files that should be available to every LaTeX project in the workspace.
-
-## Creating the Codespace
-
-Open this repository on GitHub.
-
-Select:
-
-```text
-Code
-→ Codespaces
-→ Create codespace on main
+```sh
+cd /workspaces
+gh repo clone OWNER/NOTES-REPOSITORY
+lw init /workspaces/NOTES-REPOSITORY --name notes
 ```
 
-GitHub will:
+Replace `OWNER/NOTES-REPOSITORY` with the repository you actually own.
+`lw init` preserves an existing `notes.tex`, adds portable build/editor
+configuration, and ignores generated files. It refuses to overwrite existing
+configuration: merge those settings deliberately instead.
 
-1. Read `devcontainer.json`.
-2. Build the Dockerfile.
-3. Install the development tools.
-4. Run `install.sh`.
-5. Install the configured VS Code extensions.
-6. Open the workspace.
+Use **File → Add Folder to Workspace** to add the notes repository to the
+current VS Code window. This keeps the existing container connection and tools.
 
-The first build may take several minutes because TeX Live is relatively large.
+Build, review the changes, then commit explicit files:
 
-## Repository permissions
-
-The current `devcontainer.json` grants this Codespace write access to:
-
-```text
-Bigmac010/bmo
+```sh
+cd /workspaces/NOTES-REPOSITORY
+lw build notes.tex
+git status
+git add notes.tex notes.pdf .gitignore .latexmkrc .latex .vscode
+git diff --cached --stat
+git commit -m "Add mathematical notes and PDF"
+git push
 ```
 
-This allows the Codespace to clone, pull from and push to that repository.
+For later edits, stage `notes.tex` and `notes.pdf`, plus any source figures,
+bibliographies or included TeX files you intentionally changed. The main source
+and final PDF are tracked; `build/` is not. We do not ignore every `*.pdf` or
+`*.asy`, because some are intentional source assets.
 
-Anyone forking this workspace should change or remove this section before creating a Codespace:
+If Git asks for an author, configure your **own** identity in that notes
+repository. You can use the noreply address from your GitHub email settings.
+Do not copy another person's name or email from instructions.
+
+### New notes repository
+
+Create a repository under your own account on GitHub, initialise it with a README,
+then follow the clone steps above. Alternatively use
+`gh repo create OWNER/NAME --private --clone` (choose `--public` only if intended)
+and initialise its folder with `lw init`.
+
+### Codespaces permissions
+
+A Codespace's built-in token normally covers its starting repository, not all
+repositories in the account. Cloning a public repository does not imply permission
+to push to it.
+
+In **your own workspace copy**, request only the destination repositories you
+need by adding this under `customizations` in `devcontainer.json`:
 
 ```json
 "codespaces": {
   "repositories": {
-    "Bigmac010/bmo": {
-      "permissions": {
-        "contents": "write"
-      }
+    "YOUR-ACCOUNT/YOUR-NOTES": {
+      "permissions": { "contents": "write" }
     }
   }
 }
 ```
 
-To grant access to another repository:
+Keep the existing `vscode` section beside it. GitHub restricts these references
+to repositories owned by the same account or organisation as the workspace.
+Commit your configuration and create a **new Codespace**, then authorise it.
+Rebuilding an existing Codespace does not grant the new permissions.
+For other authentication arrangements follow
+[GitHub's repository-access guide](https://docs.github.com/en/codespaces/managing-your-codespaces/managing-repository-access-for-your-codespaces).
+Never commit tokens or private keys. No extra repository access is requested by
+this public template.
 
-```json
-"codespaces": {
-  "repositories": {
-    "YOUR-USERNAME/YOUR-REPOSITORY": {
-      "permissions": {
-        "contents": "write"
-      }
-    }
-  }
-}
-```
+## What is installed
 
-To grant access to several repositories:
+- TeX Live 2026, from a pinned container snapshot.
+- Asymptote 3.15 built from a checksum-verified source revision, plus Ghostscript.
+- A pinned, unmodified modern `evan.sty`, using `tcolorbox` and `keytheorems`.
+- CMU, Inconsolata and Noto fonts for LuaLaTeX.
+- Python, C/C++ tools, CMake, GDB, Git, GitHub CLI, Fish and Neovim.
+- LaTeX Workshop, VS Code Python and C/C++ extensions.
 
-```json
-"codespaces": {
-  "repositories": {
-    "YOUR-USERNAME/REPOSITORY-ONE": {
-      "permissions": {
-        "contents": "write"
-      }
-    },
-    "YOUR-USERNAME/REPOSITORY-TWO": {
-      "permissions": {
-        "contents": "write"
-      }
-    }
-  }
-}
-```
+The supported diagram workflow is 2D mathematical/geometry PDF output. The
+container builds Asymptote without OpenGL/Vulkan; interactive GPU 3D rendering
+is outside this setup.
 
-Only request access to repositories the workspace actually needs.
+See [THIRD_PARTY.md](THIRD_PARTY.md) for versions and upstream attribution.
+OS packages are not a fully frozen snapshot. Run the checks after updating them.
 
-Changes to repository permissions may require creating a new Codespace.
+## Evan Chen documents
 
-## Fish configuration
-
-Fish is the default shell.
-
-The configuration sets NeoVim as the default editor:
-
-```fish
-set -gx EDITOR nvim
-set -gx VISUAL nvim
-```
-
-Available aliases:
-
-```text
-vim → nvim
-vi  → nvim
-ll  → ls -lah
-
-gs  → git status
-gd  → git diff
-ga  → git add
-gc  → git commit
-gp  → git push
-gl  → git pull
-```
-
-Example:
-
-```fish
-gs
-ga .
-gc -m "Add solution"
-gp
-```
-
-### C++ compilation helper
-
-Compile a single C++ file with:
-
-```fish
-cxx main.cpp
-```
-
-This is equivalent to:
-
-```fish
-g++ -std=c++20 -Wall -Wextra -Wpedantic main.cpp -o main
-```
-
-Run the result:
-
-```fish
-./main
-```
-
-The function is intended for simple single-file programs.
-
-For larger projects, use CMake or a build system.
-
-## NeoVim configuration
-
-NeoVim includes:
-
-- absolute line numbers;
-- relative line numbers;
-- four-space indentation;
-- smart case-sensitive searching;
-- mouse support;
-- lazy.nvim;
-- VimTeX;
-- latexmk integration.
-
-## LaTeX workflow
-
-Create or open a LaTeX file:
-
-```fish
-nvim proof.tex
-```
-
-Start continuous compilation with:
-
-```vim
-:VimtexCompile
-```
-
-The VimTeX shortcut is also:
-
-```text
-\ll
-```
-
-Save changes with:
-
-```vim
-:w
-```
-
-While continuous compilation is running, the PDF updates after the source file is saved.
-
-Open the generated PDF in VS Code's internal PDF viewer.
-
-A typical layout is:
-
-```text
-NeoVim editing proof.tex
-+
-VS Code displaying proof.pdf
-```
-
-### Manual compilation
-
-Compile once:
-
-```fish
-latexmk -pdf proof.tex
-```
-
-Continuously recompile:
-
-```fish
-latexmk -pdf -pvc proof.tex
-```
-
-Clean temporary files:
-
-```fish
-latexmk -c proof.tex
-```
-
-This normally keeps the source and final PDF while removing temporary compilation files.
-
-## Evan Chen's LaTeX style
-
-The workspace includes:
-
-```text
-dotfiles/texmf/tex/latex/evan/evan.sty
-```
-
-`install.sh` links it into:
-
-```text
-~/texmf/tex/latex/evan/evan.sty
-```
-
-Confirm that TeX can find it:
-
-```fish
-kpsewhich evan.sty
-```
-
-Use it in a document with:
+Use:
 
 ```latex
 \documentclass[11pt]{scrartcl}
-\usepackage[sexy]{evan}
+\usepackage[sexy,noauthor]{evan}
+\title{My notes}
+\author{}
 ```
 
-Example:
+Set your author in the document, not in `evan.sty`. Older documents using
+`mdframed[style=mdpurplebox,frametitle=...]` need conversion to
+`tcolorbox[purplebox,title=...]`, or their original compatible style version.
+Downloading a solution does not guarantee it matches every historical version
+of Evan's style. The example and integration tests exercise the modern syntax
+and Asymptote geometry support.
 
-```latex
-\documentclass[11pt]{scrartcl}
-\usepackage[sexy]{evan}
+## Optional terminal editor
 
-\title{Olympiad Notes}
-\author{Your Name}
-\date{}
+VS Code is the default. To install the supplied Fish/Neovim preferences:
 
-\begin{document}
-
-\maketitle
-
-\begin{problem}
-Prove that for every real number \(x\),
-\[
-x^2 \ge 0.
-\]
-\end{problem}
-
-\begin{proof}
-The square of every real number is nonnegative.
-\end{proof}
-
-\end{document}
+```sh
+bash install.sh --dotfiles
 ```
 
-`evan.sty` is written by Evan Chen and could be downloaded from [here](https://github.com/vEnhance/dotfiles/blob/main/texmf/tex/latex/evan/evan.sty). 
+Existing configurations are backed up under
+`~/.local/state/latex-workspace/backups/`. The installer does not set your Git
+name/email, credentials, remote, or global Git editor.
 
-See more tips and advice about LaTeX and his LaTeX style by Evan Chen [here](https://web.evanchen.cc/faq-latex.html) 
-and Evan's LaTeX guide [here](https://web.evanchen.cc/latex-style-guide.html). 
+In Neovim, TeX edits save after 0.5 seconds and use the same builder.
+Use `:LatexBuild` for a manual build with visible errors. VimTeX supplies editing
+and navigation features; it does not start a second compiler. Do not edit the
+same document simultaneously in both editors. Use VS Code for PDF viewing;
+there is no graphical Linux desktop configured.
 
-## LaTeX build files
+## Maintenance and checks
 
-LaTeX creates temporary files such as:
-
-```text
-*.aux
-*.fdb_latexmk
-*.fls
-*.log
-*.synctex.gz
-*.out
-*.toc
+```sh
+python3 -m unittest discover -s tests -p 'test_*.py' -v
+python3 tests/integration.py
 ```
 
-These are ignored by `.gitignore`.
-
-The main files normally worth keeping are:
-
-```text
-document.tex
-document.pdf
-```
-
-Tracking generated PDFs is optional and depends on the project.
-
-To ignore PDFs as well, add this to `.gitignore`:
-
-```gitignore
-*.pdf
-```
-
-Do not add that rule when the repository is intended to publish compiled PDFs.
-
-## Changing the installed programs
-
-Edit:
-
-```text
-.devcontainer/Dockerfile
-```
-
-Add an Ubuntu package inside the `apt-get install` list:
-
-```dockerfile
-RUN apt-get update && apt-get install -y \
-    existing-package \
-    new-package \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-```
-
-After changing the Dockerfile, rebuild the container.
-
-In VS Code:
-
-```text
-Ctrl + Shift + P
-→ Codespaces: Rebuild Container
-```
-
-A rebuild recreates the Linux container and reinstalls the packages.
-
-Files stored under `/workspaces` remain associated with the Codespace, but important work should still be committed and pushed before rebuilding.
-
-## Changing NeoVim
-
-Edit:
-
-```text
-dotfiles/.config/nvim/init.lua
-```
-
-Examples of settings that can be changed:
-
-```lua
-vim.opt.number = true
-vim.opt.relativenumber = true
-vim.opt.shiftwidth = 4
-vim.opt.tabstop = 4
-vim.opt.wrap = false
-```
-
-To disable relative line numbers:
-
-```lua
-vim.opt.relativenumber = false
-```
-
-To use two-space indentation:
-
-```lua
-vim.opt.shiftwidth = 2
-vim.opt.tabstop = 2
-```
-
-Add another lazy.nvim plugin inside:
-
-```lua
-require("lazy").setup({
-    {
-        "lervag/vimtex",
-        lazy = false
-    },
-
-    {
-        "AUTHOR/PLUGIN"
-    }
-})
-```
-
-After changing the configuration, restart NeoVim.
-
-## Changing Fish
-
-Edit:
-
-```text
-dotfiles/.config/fish/config.fish
-```
-
-Add an alias:
-
-```fish
-alias name='command'
-```
-
-Example:
-
-```fish
-alias cls='clear'
-```
-
-Add a function:
-
-```fish
-function hello
-    echo "Hello"
-end
-```
-
-Apply changes immediately:
-
-```fish
-source ~/.config/fish/config.fish
-```
-
-## Changing the default shell
-
-Fish is made the default shell in two places.
-
-In the Dockerfile:
-
-```dockerfile
-RUN usermod --shell /usr/bin/fish vscode
-```
-
-In `install.sh`:
-
-```bash
-sudo chsh "$(id -un)" --shell /usr/bin/fish
-```
-
-VS Code also uses Fish as its default terminal through `devcontainer.json`.
-
-To return to Bash:
-
-1. Remove or change the Fish shell lines.
-2. Set the VS Code terminal profile to Bash.
-3. Rebuild the container.
-
-## Changing VS Code extensions
-
-Edit:
-
-```text
-.devcontainer/devcontainer.json
-```
-
-The current extensions are:
-
-```json
-"extensions": [
-  "ms-vscode.cpptools",
-  "ms-python.python",
-  "james-yu.latex-workshop"
-]
-```
-
-Add another extension ID:
-
-```json
-"extensions": [
-  "ms-vscode.cpptools",
-  "ms-python.python",
-  "james-yu.latex-workshop",
-  "PUBLISHER.EXTENSION"
-]
-```
-
-Rebuild or recreate the Codespace after changing extensions.
-
-## Changing LaTeX packages
-
-The Dockerfile installs selected TeX Live collections rather than `texlive-full`.
-
-This keeps the image smaller while supporting most mathematical documents.
-
-Current collections include:
-
-```text
-texlive-latex-base
-texlive-latex-recommended
-texlive-latex-extra
-texlive-fonts-recommended
-texlive-pictures
-texlive-science
-texlive-xetex
-texlive-luatex
-```
-
-When LaTeX reports a missing package, identify the Ubuntu TeX Live collection containing it and add that collection to the Dockerfile.
-
-Installing `texlive-full` is possible, but it significantly increases build time and storage usage.
-
-## Changing the NeoVim version
-
-The Dockerfile downloads NeoVim from:
-
-```text
-https://github.com/neovim/neovim/releases/download/stable/
-```
-
-This means rebuilding later may install a newer stable NeoVim release.
-
-For a fixed version, replace `stable` with a specific release tag.
-
-Example structure:
-
-```dockerfile
-https://github.com/neovim/neovim/releases/download/vX.Y.Z/
-```
-
-Pinning a version improves reproducibility.
-
-Using `stable` keeps the workspace current.
-
-## Applying setup changes without rebuilding
-
-Changes to `install.sh` or the dotfiles can often be applied with:
-
-```fish
-cd /workspaces/linux-workspace
-bash install.sh
-```
-
-Changes to the Dockerfile require a rebuild because they affect installed system packages.
-
-## Verifying the environment
-
-Run:
-
-```fish
-echo $SHELL
-fish --version
-nvim --version
-git --version
-g++ --version
-python --version
-latexmk --version
-pdflatex --version
-xelatex --version
-lualatex --version
-asy --version
-kpsewhich evan.sty
-```
-
-## Troubleshooting
-
-### `VimtexCompile` is not recognised
-
-Check the NeoVim version:
-
-```fish
-nvim --version | head -n 1
-```
-
-Restart NeoVim after plugins have been installed.
-
-Confirm VimTeX is installed:
-
-```vim
-:Lazy
-```
-
-Confirm the file type:
-
-```vim
-:set filetype?
-```
-
-It should report:
-
-```text
-filetype=tex
-```
-
-### TeX cannot find `evan.sty`
-
-Run:
-
-```fish
-kpsewhich evan.sty
-```
-
-If nothing appears, reapply the setup:
-
-```fish
-cd /workspaces/linux-workspace
-bash install.sh
-```
-
-Then check again.
-
-
-### The build appears frozen
-
-TeX Live and graphical packages can take time to configure.
-
-Check the Codespace status from the GitHub Codespaces page.
-
-Before stopping or rebuilding, commit and push important repository changes.
-
-## Suggested changes for forks
-
-Most users may need/want to change:
-
-1. Repository access in `devcontainer.json`.
-2. GitHub username and repository names.
-3. Fish aliases.
-4. NeoVim options and plugins.
-5. VS Code extensions.
-6. TeX Live package collections.
-7. Whether `evan.sty` is included.
-8. Whether Zathura and xfce4-terminal are installed.
-9. Whether NeoVim tracks the latest stable release or a pinned version.
-10. Whether generated PDFs are tracked by Git.
+GitHub Actions builds the actual container and tests cold builds, cache reuse,
+text edits, selective diagram rebuilds, preamble changes, failed-build PDF
+preservation, spaces in paths, republishing and LuaLaTeX.
+
+The original workspace's previous Git commits are not erased by a configuration
+change. GitHub still displays the repository owner and public commit/PR history.
+A template copy starts a new history; cloning/forking retains history.
 
 ## Licence
 
-The original workspace configuration may be reused and modified according to the licence selected for this repository.
-
-`evan.sty` remains separately copyrighted by Evan Chen and is distributed under the Boost Software License 1.0 contained within that file.
+Original workspace code is MIT licensed. Vendored third-party files retain
+their own licences and attribution. See [LICENSE](LICENSE) and
+[THIRD_PARTY.md](THIRD_PARTY.md).
