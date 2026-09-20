@@ -122,6 +122,7 @@ def build(source, engine='pdflatex', cache=True):
                 env['LW_FORMAT'] = str(fmt)
         mode = '-pdf' if engine == 'pdflatex' else '-lualatex'
         command = ['latexmk', '-norc', '-r', str(config), mode, '-outdir=build',
+                   '-jobname=' + source.stem,
                    '-synctex=1', '-interaction=nonstopmode', '-halt-on-error',
                    '-file-line-error', source.name]
         result = subprocess.run(command, cwd=source.parent, env=env)
