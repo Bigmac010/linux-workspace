@@ -4,9 +4,9 @@
   "latex-workshop.latex.autoBuild.run": "onSave",
   "latex-workshop.latex.autoBuild.interval": 1000,
   "latex-workshop.latex.build.enableMagicComments": false,
-  "latex-workshop.latex.recipe.default": "first",
-  "latex-workshop.latex.outDir": "%DIR%/build",
-  "latex-workshop.latex.auxDir": "%DIR%/build",
+  "latex-workshop.latex.recipe.default": "LuaLaTeX + Asymptote",
+  "latex-workshop.latex.outDir": "%WORKSPACE_FOLDER%/build/%RELATIVE_DIR%/%DOCFILE%",
+  "latex-workshop.latex.auxDir": "%WORKSPACE_FOLDER%/build/%RELATIVE_DIR%/%DOCFILE%",
   "latex-workshop.latex.autoClean.run": "never",
   "latex-workshop.view.pdf.viewer": "tab",
   "latex-workshop.view.pdf.tab.editorGroup": "right",
@@ -35,7 +35,7 @@
       "name": "cached",
       "command": "python3",
       "args": [
-        "%DIR%/.latex/build.py",
+        "%WORKSPACE_FOLDER%/.latex/build.py",
         "%DOC%.tex"
       ]
     },
@@ -43,7 +43,7 @@
       "name": "normal",
       "command": "python3",
       "args": [
-        "%DIR%/.latex/build.py",
+        "%WORKSPACE_FOLDER%/.latex/build.py",
         "--no-cache",
         "%DOC%.tex"
       ]
@@ -52,11 +52,28 @@
       "name": "lua",
       "command": "python3",
       "args": [
-        "%DIR%/.latex/build.py",
+        "%WORKSPACE_FOLDER%/.latex/build.py",
         "--engine",
         "lualatex",
         "%DOC%.tex"
       ]
     }
-  ]
+  ],
+  "files.exclude": {
+    ".latex": true,
+    ".vscode": true,
+    ".devcontainer": true,
+    ".github": true,
+    ".gitattributes": true,
+    ".gitignore": true,
+    ".latexmkrc": true,
+    "dotfiles": true,
+    "tests": true,
+    "tools": true,
+    "install.sh": true
+  },
+  "explorer.compactFolders": false,
+  "search.exclude": {
+    "**/build/**": true
+  }
 }

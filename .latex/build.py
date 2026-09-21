@@ -78,7 +78,7 @@ def prepare_cache(source, folder):
         pass
     print('Refreshing preamble cache (ordinary text edits reuse it).', flush=True)
     command = ['pdftex', '-ini', '-recorder', '-interaction=nonstopmode',
-               '-halt-on-error', '-output-directory=build', '-jobname=' + source.stem,
+               '-halt-on-error', '-output-directory=' + str(folder), '-jobname=' + source.stem,
                '&pdflatex', 'mylatexformat.ltx', '"' + source.name + '"']
     cache_log = folder / (source.stem + '.cache-build.log')
     with cache_log.open('w', encoding='utf-8') as log:
@@ -109,12 +109,20 @@ def build(source, engine='pdflatex', cache=True):
     source = Path(source).resolve()
     if source.suffix != '.tex' or not source.is_file():
         raise ValueError('Choose an existing main .tex file.')
-    folder = source.parent / 'build'
-    folder.mkdir(exist_ok=True)
+    workspace = Path(__file__).resolve().parent.parent
+    try:
+        relative = source.relative_to(workspace)
+        folder = workspace / 'build' / relative.parent / source.stem
+    except ValueError:
+        folder = source.parent / 'build'
+    folder.mkdir(parents=True, exist_ok=True)
     config = Path(__file__).with_name('latexmkrc').resolve()
     started = time.monotonic()
     with build_lock(folder / (source.stem + '.lock')):
         env = os.environ.copy()
+        # Codespaces may forward a locale absent from the Linux image.
+        if sys.platform.startswith("linux"):
+            env["LC_ALL"] = "C.UTF-8"
         env.pop('LW_FORMAT', None)
         if cache and engine == 'pdflatex':
             fmt = prepare_cache(source, folder)
@@ -127,7 +135,7 @@ def build(source, engine='pdflatex', cache=True):
                 env['LW_FORMAT'] = alias.name
                 env['TEXFORMATS'] = str(folder) + os.pathsep + env.get('TEXFORMATS', '')
         mode = '-pdf' if engine == 'pdflatex' else '-lualatex'
-        command = ['latexmk', '-norc', '-r', str(config), mode, '-outdir=build',
+        command = ['latexmk', '-norc', '-r', str(config), mode, '-outdir=' + str(folder),
                    '-jobname=' + source.stem,
                    '-synctex=1', '-interaction=nonstopmode', '-halt-on-error',
                    '-file-line-error', source.name]
